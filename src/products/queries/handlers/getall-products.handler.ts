@@ -6,13 +6,14 @@ import { Repository } from 'typeorm';
 import { GetAllProductsResponseDto } from '../../dto/getall-products-response.dto';
 import { GetProductResponseDto } from '../../dto/get-product-response.dto';
 import { InternalServerErrorException } from '@nestjs/common';
+import { CustomLoggerService } from '../../../common/Logger/customerLogger.service';
 
 @QueryHandler(GetAllProductsQuery)
 export class GetAllProductsHandler
   implements IQueryHandler<GetAllProductsQuery>
 {
   constructor(
-    // private readonly _loggerService: LoggerService,
+    private readonly _loggerService: CustomLoggerService,
     @InjectRepository(ProductsEntity)
     private readonly repository: Repository<ProductsEntity>,
   ) {}
@@ -21,15 +22,17 @@ export class GetAllProductsHandler
     query: GetAllProductsQuery,
   ): Promise<GetAllProductsResponseDto> {
     try {
-      //   this._loggerService.info(
-      //     `[${GetAllCustomersHandler.name}] - Starting execution`,
-      //   );
-
-      const products = await this.repository.find();
+      this._loggerService.info(
+        `[${GetAllProductsHandler.name}] - Starting execution`,
+      );
+      const { page = 1, limit = 10 } = query.pagination || {};
+      const [products, total] = await this.repository.findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+      });
 
       const responseDto = new GetAllProductsResponseDto();
-
-      responseDto.products = products.map((product) => {
+      responseDto.data = products.map((product) => {
         const productsDto = new GetProductResponseDto();
         productsDto.productId = product.productId;
         productsDto.name = product.name;
@@ -40,11 +43,17 @@ export class GetAllProductsHandler
         return productsDto;
       });
 
+      responseDto.meta = {
+        total: total,
+        page: page,
+        lastPage: Math.ceil(total / limit),
+      };
+
       return responseDto;
     } catch (error) {
-      //   this._loggerService.error(
-      //     `[${GetAllCustomersHandler.name}] - Error: ${error.message}`,
-      //   );
+      this._loggerService.error(
+        `[${GetAllProductsHandler.name}] - Error: ${error.message}`,
+      );
       throw new InternalServerErrorException(
         'An error occurred: ' + error.message,
       );

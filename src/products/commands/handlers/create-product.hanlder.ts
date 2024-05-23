@@ -4,13 +4,14 @@ import { Repository } from 'typeorm';
 import { CreateProductCommand } from '../impl/create-product.command';
 import { ProductsEntity } from '../../entities/product.entity';
 import { InternalServerErrorException } from '@nestjs/common';
+import { CustomLoggerService } from '../../../common/Logger/customerLogger.service';
 
 @CommandHandler(CreateProductCommand)
 export class CreateProductHanlder
   implements ICommandHandler<CreateProductCommand>
 {
   constructor(
-    // private readonly _loggerService: LoggerService,
+    private readonly _loggerService: CustomLoggerService,
     @InjectRepository(ProductsEntity)
     private readonly repository: Repository<ProductsEntity>,
   ) {}
@@ -18,7 +19,7 @@ export class CreateProductHanlder
   async execute(command: CreateProductCommand): Promise<ProductsEntity> {
     try {
       //Log the start of the command execution
-      // this._loggerService.info('[CreateCustomerCommand] - Execution started');
+      this._loggerService.info('[CreateProductHanlder] - Execution started');
 
       return await this.createProduct(command);
     } catch (error) {
@@ -31,9 +32,7 @@ export class CreateProductHanlder
   private async createProduct(
     command: CreateProductCommand,
   ): Promise<ProductsEntity> {
-    // this._loggerService.info(
-    //     `[${CreateCustomerHanlder.name}] - Created client`,
-    //   );
+    this._loggerService.info(`[${CreateProductHanlder.name}] - Created client`);
 
     const { productId, name, price } = command.createProductRequestDto;
     const product = this.repository.create({

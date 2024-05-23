@@ -4,26 +4,25 @@ import { ProductsEntity } from '../../entities/product.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetProductResponseDto } from '../../dto/get-product-response.dto';
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
+import { CustomLoggerService } from '../../../common/Logger/customerLogger.service';
 
 @QueryHandler(GetProductQuery)
 export class GetProductHandler implements IQueryHandler<GetProductQuery> {
   constructor(
-    // private readonly _loggerService: LoggerService,
+    private readonly _loggerService: CustomLoggerService,
     @InjectRepository(ProductsEntity)
     private readonly repository: Repository<ProductsEntity>,
   ) {}
 
   async execute(query: GetProductQuery): Promise<GetProductResponseDto> {
     try {
-      // this._loggerService.info(
-      //     `[${
-      //         GetCustomerHanlder.name
-      //     }] - Starting execution for query ${JSON.stringify(query)}`,
-      // );
+      this._loggerService.info(
+        `[${
+          GetProductHandler.name
+        }] - Starting execution for query ${JSON.stringify(query)}`,
+      );
 
       //Get product
       const product = await this.getProduct(query.id);
@@ -38,36 +37,30 @@ export class GetProductHandler implements IQueryHandler<GetProductQuery> {
 
       return responseDto;
     } catch (error) {
-      // this._loggerService.error(
-      //     `[${GetCustomerHanlder.name}] - Error executing query ${JSON.stringify(
-      //       query,
-      //     )}. Error: ${error.message}`,
-      //   );
-      if (error instanceof NotFoundException) {
-        // Re-lanza la misma excepción para preservar el estado HTTP 404
-        throw error;
-      }
-      //   Cualquier otro tipo de exepcion
-      throw new InternalServerErrorException(
-        'An error occurred: ' + error.message,
+      this._loggerService.error(
+        `[${GetProductHandler.name}] - Error executing query ${JSON.stringify(
+          query,
+        )}. Error: ${error.message}`,
       );
+
+      throw new RpcException('An error occurred: ' + error.message);
     }
   }
 
   private async getProduct(productId: string) {
-    // this._loggerService.info(
-    //     `[${GetCustomerHanlder.name}] - Retrieving client ${customerId}`,
-    //   );
+    this._loggerService.info(
+      `[${GetProductHandler.name}] - Retrieving product ${productId}`,
+    );
 
     const product: ProductsEntity = await this.repository.findOne({
       where: { productId: productId },
     });
 
     if (!product) {
-      // this._loggerService.error(
-      //     `[${GetCustomerHanlder.name}] - Customer ${customerId} does not found`,
-      // );
-      //throw BusinessErrors.CustomerDoesNotExist;
+      this._loggerService.error(
+        `[${GetProductHandler.name}] - Customer ${productId} does not found`,
+      );
+
       throw new NotFoundException(`Customer with ID ${productId} not found.`);
     }
 
