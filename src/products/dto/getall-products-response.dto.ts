@@ -1,5 +1,10 @@
 import { GetProductResponseDto } from './get-product-response.dto';
 
 export class GetAllProductsResponseDto {
-  products: GetProductResponseDto[];
+  data: GetProductResponseDto[];
+  meta: {
+    total: number;
+    page: number;
+    lastPage: number;
+  };
 }

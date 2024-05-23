@@ -7,6 +7,7 @@ import { GetProductQuery } from './queries/impl/get-product.query';
 import { GetAllProductsQuery } from './queries/impl/getall-products.query';
 import { GetAllProductsResponseDto } from './dto/getall-products-response.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -33,7 +34,9 @@ export class ProductsController {
 
   // @Get('')
   @MessagePattern({ cmd: 'find_all_products' })
-  async getAllProducts(): Promise<GetAllProductsResponseDto> {
-    return await this.queryBus.execute(new GetAllProductsQuery());
+  async getAllProducts(
+    @Payload() paginationDto: PaginationDto,
+  ): Promise<GetAllProductsResponseDto> {
+    return await this.queryBus.execute(new GetAllProductsQuery(paginationDto));
   }
 }
