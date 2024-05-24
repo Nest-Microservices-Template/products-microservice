@@ -34,9 +34,8 @@ export class CreateProductHanlder
   ): Promise<ProductsEntity> {
     this._loggerService.info(`[${CreateProductHanlder.name}] - Created client`);
 
-    const { productId, name, price } = command.createProductRequestDto;
+    const { name, price } = command.createProductRequestDto;
     const product = this.repository.create({
-      productId,
       name,
       price,
     });

@@ -5,8 +5,9 @@ import { ProductsEntity } from '../../entities/product.entity';
 import { Repository } from 'typeorm';
 import { GetAllProductsResponseDto } from '../../dto/getall-products-response.dto';
 import { GetProductResponseDto } from '../../dto/get-product-response.dto';
-import { InternalServerErrorException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { CustomLoggerService } from '../../../common/Logger/customerLogger.service';
+import { RpcException } from '@nestjs/microservices';
 
 @QueryHandler(GetAllProductsQuery)
 export class GetAllProductsHandler
@@ -34,7 +35,6 @@ export class GetAllProductsHandler
       const responseDto = new GetAllProductsResponseDto();
       responseDto.data = products.map((product) => {
         const productsDto = new GetProductResponseDto();
-        productsDto.productId = product.productId;
         productsDto.name = product.name;
         productsDto.price = product.price;
         productsDto.createdAt = product.createdAt;
@@ -54,9 +54,10 @@ export class GetAllProductsHandler
       this._loggerService.error(
         `[${GetAllProductsHandler.name}] - Error: ${error.message}`,
       );
-      throw new InternalServerErrorException(
-        'An error occurred: ' + error.message,
-      );
+      throw new RpcException({
+        message: 'An error occurred: ' + error.message,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
     }
   }
 }

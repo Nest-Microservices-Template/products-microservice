@@ -3,9 +3,6 @@ import { IsNumber, IsString, Min } from 'class-validator';
 
 export class CreateProductRequestDto {
   @IsString()
-  public productId: string;
-
-  @IsString()
   public name: string;
 
   @IsNumber({

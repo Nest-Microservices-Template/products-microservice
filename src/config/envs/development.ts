@@ -7,6 +7,6 @@ export const config = {
           rejectUnauthorized: false,
         }, */
     synchronize: true,
-    logging: true,
+    logging: false,
   },
 };

@@ -4,7 +4,7 @@ import { ProductsEntity } from '../../entities/product.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetProductResponseDto } from '../../dto/get-product-response.dto';
-import { NotFoundException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { CustomLoggerService } from '../../../common/Logger/customerLogger.service';
 
@@ -29,7 +29,6 @@ export class GetProductHandler implements IQueryHandler<GetProductQuery> {
 
       //return product;
       const responseDto = new GetProductResponseDto();
-      responseDto.productId = product.productId;
       responseDto.name = product.name;
       responseDto.price = product.price;
       responseDto.createdAt = product.createdAt;
@@ -43,7 +42,10 @@ export class GetProductHandler implements IQueryHandler<GetProductQuery> {
         )}. Error: ${error.message}`,
       );
 
-      throw new RpcException('An error occurred: ' + error.message);
+      throw new RpcException({
+        message: 'An error occurred: ' + error.message,
+        status: HttpStatus.NOT_FOUND,
+      });
     }
   }
 
@@ -53,7 +55,7 @@ export class GetProductHandler implements IQueryHandler<GetProductQuery> {
     );
 
     const product: ProductsEntity = await this.repository.findOne({
-      where: { productId: productId },
+      where: { uuid: productId },
     });
 
     if (!product) {
@@ -61,7 +63,7 @@ export class GetProductHandler implements IQueryHandler<GetProductQuery> {
         `[${GetProductHandler.name}] - Customer ${productId} does not found`,
       );
 
-      throw new NotFoundException(`Customer with ID ${productId} not found.`);
+      throw new Error(`Customer with ID ${productId} not found.`);
     }
 
     return product;
