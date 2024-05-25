@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProductCommand } from '../impl/create-product.command';
 import { ProductsEntity } from '../../entities/product.entity';
-import { InternalServerErrorException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { CustomLoggerService } from '../../../common/Logger/customerLogger.service';
+import { RpcException } from '@nestjs/microservices';
 
 @CommandHandler(CreateProductCommand)
 export class CreateProductHanlder
@@ -23,9 +24,10 @@ export class CreateProductHanlder
 
       return await this.createProduct(command);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'An error occurred: ' + error.message,
-      );
+      throw new RpcException({
+        message: 'An error occurred: ' + error.message,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
     }
   }
 
