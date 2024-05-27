@@ -8,6 +8,7 @@ import { GetAllProductsQuery } from './queries/impl/getall-products.query';
 import { GetAllProductsResponseDto } from './dto/getall-products-response.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { ValidateProductsQuery } from './queries/impl/validate-products.query';
 
 @Controller('products')
 export class ProductsController {
@@ -38,5 +39,10 @@ export class ProductsController {
     @Payload() paginationDto: PaginationDto,
   ): Promise<GetAllProductsResponseDto> {
     return await this.queryBus.execute(new GetAllProductsQuery(paginationDto));
+  }
+
+  @MessagePattern({ cmd: 'validate_products' })
+  async validateProduct(@Payload() ids: string[]) {
+    return await this.queryBus.execute(new ValidateProductsQuery(ids));
   }
 }
