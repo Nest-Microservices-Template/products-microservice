@@ -34,7 +34,9 @@ export class CreateProductHanlder
   private async createProduct(
     command: CreateProductCommand,
   ): Promise<ProductsEntity> {
-    this._loggerService.info(`[${CreateProductHanlder.name}] - Created client`);
+    this._loggerService.info(
+      `[${CreateProductHanlder.name}] - Created product`,
+    );
 
     const { name, price } = command.createProductRequestDto;
     const product = this.repository.create({
