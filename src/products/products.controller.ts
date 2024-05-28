@@ -17,8 +17,7 @@ export class ProductsController {
     private queryBus: QueryBus,
   ) {}
 
-  // @Post('')
-  @MessagePattern({ cmd: 'create_product' })
+  @MessagePattern('create_product')
   async createProduct(
     @Payload() createProductDto: CreateProductRequestDto,
   ): Promise<GetProductResponseDto> {
@@ -27,21 +26,19 @@ export class ProductsController {
     );
   }
 
-  // @Get(':id')
-  @MessagePattern({ cmd: 'find_one_product' })
+  @MessagePattern('find_one_product')
   async getProduct(@Payload('id') id: string): Promise<GetProductResponseDto> {
     return await this.queryBus.execute(new GetProductQuery(id));
   }
 
-  // @Get('')
-  @MessagePattern({ cmd: 'find_all_products' })
+  @MessagePattern('find_all_products')
   async getAllProducts(
     @Payload() paginationDto: PaginationDto,
   ): Promise<GetAllProductsResponseDto> {
     return await this.queryBus.execute(new GetAllProductsQuery(paginationDto));
   }
 
-  @MessagePattern({ cmd: 'validate_products' })
+  @MessagePattern('validate_products')
   async validateProduct(@Payload() ids: string[]) {
     return await this.queryBus.execute(new ValidateProductsQuery(ids));
   }
