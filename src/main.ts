@@ -6,12 +6,21 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const logger = new Logger('Main');
+
+  // Crear instancia del microservicio usando Kafka
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.NATS,
+      transport: Transport.KAFKA,
       options: {
-        servers: envs.natsServers,
+        client: {
+          brokers: [process.env.KAFKA_SERVER], // Dirección del broker Kafka
+          clientId: 'products-service', // ID del cliente Kafka
+        },
+        consumer: {
+          groupId: 'products-consumer-group', // Grupo de consumidores Kafka
+          allowAutoTopicCreation: true,
+        },
       },
     },
   );
@@ -24,10 +33,6 @@ async function bootstrap() {
   );
 
   await app.listen();
-  // await app.listen(envs.port);
-
-  // Para hacerlo hibrido con http.
-  // app.startAllMicroservices();
   logger.log(`Products Microservice running on port ${envs.port}`);
 }
 bootstrap();

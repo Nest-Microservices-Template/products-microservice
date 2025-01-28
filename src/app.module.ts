@@ -3,6 +3,7 @@ import { ProductsModule } from './products/products.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { configuration } from './config';
+import { KafkaModule } from './transport/kafka.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { configuration } from './config';
       inject: [ConfigService],
     }),
     ProductsModule,
+    KafkaModule,
   ],
   controllers: [],
   providers: [],
