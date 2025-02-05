@@ -6,7 +6,7 @@ import { CreateProductCommand } from './commands/impl/create-product.command';
 import { GetProductQuery } from './queries/impl/get-product.query';
 import { GetAllProductsQuery } from './queries/impl/getall-products.query';
 import { GetAllProductsResponseDto } from './dto/getall-products-response.dto';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { ValidateProductsQuery } from './queries/impl/validate-products.query';
 
@@ -77,5 +77,11 @@ export class ProductsController {
 
     console.log('[Products Microservice] Transformed response:', plainResponse);
     return plainResponse;
+  }
+
+  @EventPattern('order_created')
+  async handleOrderCreated(data: any) {
+    // Manejar el evento
+    console.log('Order created:', data);
   }
 }
